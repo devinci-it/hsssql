@@ -1,4 +1,4 @@
-# HssSqlDatabase Subpackage
+# HssSqlDatabase
 
 ## Overview
 

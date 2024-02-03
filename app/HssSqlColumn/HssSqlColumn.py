@@ -38,7 +38,7 @@ class HssSqlColumn:
 
     VALID_CONSTRAINTS = ["PRIMARY KEY", "UNIQUE", "NOT NULL", "CHECK", "DEFAULT"]
 
-    def __init__(self, name=None, data_type=None):
+    def __init__(self, name=None, data_type=None,constraints=None):
         """
         Initialize a new instance of HssSqlColumn.
 
@@ -47,17 +47,20 @@ class HssSqlColumn:
             data_type (str): The data type of the column.
 
         """
-        if name is None:
-            self.name = ''
-        else:
+        if name is not None:
             self.name = name
-
-        if data_type is None:
-            self.data_type = ''
         else:
-            self.data_type = data_type
+            self.name = ''
 
-        self.constraints = []
+        if data_type is not None:
+            self.data_type = data_type
+        else:
+            self.data_type = ''
+        if constraints is not None:
+            self.constraints = constraints
+        else:
+            self.constraints = []
+
 
     def set_column_name(self, name: str) -> None:
         """
@@ -87,7 +90,7 @@ class HssSqlColumn:
 
         if parameter is not None:
             data_type_with_param = f"{data_type}({parameter})"
-            if not self.is_valid_data_type(data_type_with_param):
+            if not self.is_valid_data_type(data_type,parameter):
                 raise ValueError(f"Invalid data type with parameter: {data_type_with_param}")
             self.data_type = data_type_with_param
         else:
@@ -122,6 +125,22 @@ class HssSqlColumn:
 
         """
         self.constraints = [c for c in self.constraints if c != constraint]
+
+    @property
+    def generate_column_definition(self) -> str:
+        """
+        Generate the column definition for use in CREATE TABLE command.
+
+        Returns:
+            str: The column definition.
+
+        """
+        definition = f"\t\t{self.name} {self.data_type}"
+        if self.data_type in HssSqlColumn.DATA_TYPES_WITH_PARAMETERS:
+            definition += f"({self.parameter})"
+        for constraint in self.constraints:
+            definition += f" {constraint}"
+        return definition
 
     @staticmethod
     def is_valid_data_type(data_type: str, parameter: str = None) -> bool:
@@ -188,6 +207,8 @@ class HssSqlColumn:
         instance.constraints = data.get("constraints", [])
         return instance
 
+
+
     def __repr__(self) -> str:
         """
         Return a string representation of the object.
@@ -208,4 +229,6 @@ class HssSqlColumn:
         """
         constraints_str = ', '.join(self.constraints) if self.constraints else 'None'
         return f"Column: {self.name}, Data Type: {self.data_type}, Constraints: {constraints_str}"
+
+
 
