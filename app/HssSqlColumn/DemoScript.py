@@ -57,7 +57,7 @@ def main():
 
     column_instance = HssSqlColumn()
     column_instance.set_column_name("column_name")
-    column_instance.set_data_type("TIME",255)
+    column_instance.set_data_type("VAR",255)
     column_instance.add_constraint("NOT NULL")
     column_instance.add_constraint("UNIQUE")
 
